@@ -20,12 +20,14 @@ authors = [
 dependencies = [
     "numpy",
     "scipy",
-    "SeInE-HB>=0.1.4"
+    "SeInE-HB>=0.1.3",
+    "event-estimator>=0.1.1"
 ]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["SeInE_orientation*"]
+include = ["seine_orientation*"]
 
 [tool.setuptools_scm]
 version_file = "seine_orientation/_version.py"
+local_scheme = "no-local-version"

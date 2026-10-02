@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from turnover_dynamics.place_selectivity_inference.utils import gauss_smooth
+from .utils_analysis import gauss_smooth
 
 
 def plot_stimulus(data):

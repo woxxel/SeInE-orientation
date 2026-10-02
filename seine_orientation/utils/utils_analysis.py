@@ -1,8 +1,8 @@
 import numpy as np
 import itertools
 
-from turnover_dynamics.place_selectivity_inference.utils.utils_analysis import (
-    get_spiking_data,
+from event_estimator.event_estimator import (
+    get_events
 )
 
 
@@ -12,7 +12,7 @@ def get_spikes(
 ):
     spikes = np.zeros_like(S)
     for n, s in enumerate(S):
-        spikes[n, :], _, _ = get_spiking_data(s, f=f)
+        spikes[n, :], _, _ = get_events(s, f=f)
 
     return spikes
 
@@ -221,3 +221,19 @@ def plot_spike_maps(
         labels=unique_values["angles"],
     )
     # return event_counts, dwelltime
+
+
+
+def gauss_smooth(X, smooth=None, mode="wrap"):
+    if (smooth is None) or not np.any(np.array(smooth) > 0):
+        return X
+    else:
+        V = X.copy()
+        V[np.isnan(X)] = 0
+        VV = sp.ndimage.gaussian_filter(V, smooth, mode=mode)
+
+        W = 0 * X.copy() + 1
+        W[np.isnan(X)] = 0
+        WW = sp.ndimage.gaussian_filter(W, smooth, mode=mode)
+
+    return VV / WW

@@ -1,7 +1,11 @@
 *.pyc
+*.egg-info
 
 interactive/
 notebooks/
 figures/
 Discussions/
 data/
+
+
+seine_orientation/_version.py
