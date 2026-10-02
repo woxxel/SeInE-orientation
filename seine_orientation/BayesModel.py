@@ -2,7 +2,7 @@ import numpy as np
 import time
 import itertools
 
-from seine.NestedSamplingMethods import (
+from seine import (
     run_sampling,
 )
 from seine import HierarchicalModel, functions as prior_fn

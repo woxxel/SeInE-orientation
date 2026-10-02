@@ -1,9 +1,7 @@
 import numpy as np
 import itertools
 
-from event_estimator.event_estimator import (
-    get_events
-)
+from event_estimator import get_events
 
 
 def get_spikes(
@@ -91,7 +89,9 @@ def calculate_firing_maps(
                 start_idx = np.argmin(
                     np.abs(stimulus_data["frame_times"] - (time[0] + dt_onset * f))
                 )
-                end_idx = np.argmin(np.abs(stimulus_data["frame_times"] - (time[1] + dt_offset * f)))
+                end_idx = np.argmin(
+                    np.abs(stimulus_data["frame_times"] - (time[1] + dt_offset * f))
+                )
 
             if collapse_repeats:
                 event_counts[idx[0], idx[1], idx[2], :] += spikes[
@@ -221,7 +221,6 @@ def plot_spike_maps(
         labels=unique_values["angles"],
     )
     # return event_counts, dwelltime
-
 
 
 def gauss_smooth(X, smooth=None, mode="wrap"):

@@ -53,7 +53,7 @@ def process_session(
         run_model_comparison,
     )
 
-    projects_dir = os.environ.get("PROJECT_DIR", "tmp")
+    projects_dir = os.environ.get("PROJECT_DIR", "/home/wollex/mnt")
     project_dir = Path(projects_dir) / project
 
     dir_analysis = get_folder_path(
@@ -77,7 +77,7 @@ def process_session(
     )
 
     ## from here, process data
-    ld = loadmat(path_meta, variable_names=["CaimanMeta"])
+    ld = loadmat(path_meta, variable_names="CaimanMeta", simplify_cells=True)
     meta_data = ld["CaimanMeta"]
 
     with h5py.File(path_detection, "r") as f:
@@ -86,7 +86,7 @@ def process_session(
     protocols = {"bino": 0, "cont": 1, "ipsi": 2}
 
     for protocol, idx in protocols.items():
-        idx = protocols[protocol]
+
         num_frames = np.cumsum(meta_data["num_frames"])
         start_idx = num_frames[idx - 1] if idx > 0 else 0
         end_idx = num_frames[idx]
@@ -95,7 +95,7 @@ def process_session(
         S_protocol = S[:, start_idx:end_idx]
 
         path_stimulus = dir_data.glob(f"*_{protocol}_*").__next__()
-        ld = loadmat(path_stimulus)
+        ld = loadmat(path_stimulus, simplify_cells=True)
         stimulus_data = ld["runInfo"]
 
         unique_values = get_unique_stimulus_values(stimulus_data)
@@ -162,11 +162,11 @@ def process_session(
                             "baseline": [baseline_pre[n], baseline_post[n]],
                             "dwelltime": dwelltime,  ## is saved n_neuron times, but is not large
                             "evidence": [
-                                entry[n][model].logz[-1],
-                                entry[n][model].logzerr[-1],
+                                entry[model].logz[-1],
+                                entry[model].logzerr[-1],
                             ],
-                            "samples": entry[n][model].samples,
-                            "weights": entry[n][model].importance_weights(),
+                            "samples": entry[model].samples,
+                            "weights": entry[model].importance_weights(),
                         }
 
         fname_out = (
@@ -188,7 +188,8 @@ def process_session(
 def build_parser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(
-        prog="neuron-detection", description="Neuron detection pipeline using CaImAn"
+        prog="seine_orientation",
+        description="Orientation selectivity inference using SeInE",
     )
     parser.add_argument(
         "--animal",
@@ -236,7 +237,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--prefix",
         type=str,
-        default="results_CaImAn",
+        default="SeInE",
         help="Prefix of CaImAn result files",
     )
     parser.add_argument(

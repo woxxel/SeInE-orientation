@@ -4,10 +4,10 @@ import matplotlib.colors as mcolors
 
 from turnover_dynamics.place_selectivity_inference.utils import gauss_smooth
 
-from turnover_dynamics.orientation_selectivity_inference.BayesModel import (
+from turnover_dynamics.orientation_selectivity_inference.seine_orientation.BayesModel import (
     HierarchicalBayesInference,
 )
-from turnover_dynamics.orientation_selectivity_inference.utils.utils_model import (
+from turnover_dynamics.orientation_selectivity_inference.seine_orientation.utils.utils_model import (
     gabor_filter,
     gabor_response,
 )
@@ -379,9 +379,9 @@ def test_winning_model(results, print_it=False) -> tuple[str, str]:
                 )
             return "complex", favored_complex_simple
         else:
-            # if both models are favored over random, but not favored 
-            # against each other, we can still say that the simple 
-            # model is favored over random, even if we cannot say that 
+            # if both models are favored over random, but not favored
+            # against each other, we can still say that the simple
+            # model is favored over random, even if we cannot say that
             # it is favored over the complex model
             if print_it:
                 print(
@@ -390,7 +390,7 @@ def test_winning_model(results, print_it=False) -> tuple[str, str]:
             return (
                 model_names[np.argmax(log_evidences[1:, 0], axis=0) + 1],
                 "",
-            )  
+            )
 
     # return "simple"
 

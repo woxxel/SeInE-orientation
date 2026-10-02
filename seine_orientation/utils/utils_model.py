@@ -251,7 +251,8 @@ def sine_grating(X, Y, theta, f, phi_0=0.0, square=False, **kwargs):
 
 def softplus(x, alpha=1.0, gamma=0.0, delta=0.0):
     # return alpha * np.log(1 + np.exp((x - gamma) / alpha)) + delta
-    return alpha * np.log(1 + np.exp((x - gamma) / alpha)) + delta
+    z = (x - gamma) / alpha
+    return alpha * np.logaddexp(0, z) + delta
     # return alpha * np.log(1 + np.exp((x - gamma) / alpha)) + delta
 
 
