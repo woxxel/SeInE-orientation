@@ -1,0 +1,31 @@
+[build-system]
+requires = [
+    "setuptools>=77.0.3",
+    "setuptools-scm>=8",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "SeInE-orientation"
+dynamic = ["version"]
+description = "Orientation Selectivity Inference from a Gabor model"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+
+authors = [
+    { name = "Alexander Schmidt" }
+]
+
+dependencies = [
+    "numpy",
+    "scipy",
+    "SeInE-HB>=0.1.4"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["SeInE_orientation*"]
+
+[tool.setuptools_scm]
+version_file = "seine_orientation/_version.py"

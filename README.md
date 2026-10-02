@@ -1,0 +1,1 @@
+Inferring model parameters of tilted Gabor-filter with non-linear response rate and overdispersed spike count responses, using SeInE

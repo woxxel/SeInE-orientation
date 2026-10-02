@@ -1,0 +1,7 @@
+*.pyc
+
+interactive/
+notebooks/
+figures/
+Discussions/
+data/
