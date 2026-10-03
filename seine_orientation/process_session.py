@@ -82,7 +82,8 @@ def process_session(
     ## from here, process data
     ld = loadmat(path_meta, variable_names="CaimanMeta", simplify_cells=True)
     meta_data = ld["CaimanMeta"]
-    num_frames = np.cumsum(meta_data["num_frames"])
+    num_frames = meta_data["num_frames"]
+    
 
     with h5py.File(path_detection, "r") as f:
         S = np.array(f[spikes_key][()])
@@ -111,14 +112,16 @@ def process_session(
                 print("shape:", s.shape)
                 num_frames[idx] = s.shape[0]
             print("Updated num_frames:", num_frames)
-
-
+        
+        cum_frames = np.cumsum(num_frames)
+        
         if Path(fname_out).exists() and not force:
             print(f"Output file for protocol '{protocol}' already exists: {fname_out}")
             continue
 
-        start_idx = num_frames[idx - 1] if idx > 0 else 0
-        end_idx = num_frames[idx]
+        start_idx = cum_frames[idx - 1] if idx > 0 else 0
+        end_idx = cum_frames[idx]
+        print(f"Processing frames {start_idx} to {end_idx} for protocol '{protocol}'")
 
         stimuli = meta_data["Stimulus"][idx]
         S_protocol = S[:, start_idx:end_idx]
