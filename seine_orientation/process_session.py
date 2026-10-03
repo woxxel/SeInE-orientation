@@ -37,6 +37,7 @@ def process_session(
     suffix: str = "",
     nP: int = 12,
     save_type: str = "hdf5",
+    force: bool = False,
     **kwargs,
 ):
     """
@@ -65,8 +66,10 @@ def process_session(
     )
     path_meta = dir_analysis / "CaimanMeta.mat"
     print(path_meta)
+    assert path_meta.exists(), f"Metadata file not found: {path_meta}"
     path_detection = dir_analysis / fname
     print(path_detection)
+    assert path_detection.exists(), f"Detection file not found: {path_detection}"
 
     dir_data = get_folder_path(
         animal,
@@ -79,6 +82,7 @@ def process_session(
     ## from here, process data
     ld = loadmat(path_meta, variable_names="CaimanMeta", simplify_cells=True)
     meta_data = ld["CaimanMeta"]
+    num_frames = np.cumsum(meta_data["num_frames"])
 
     with h5py.File(path_detection, "r") as f:
         S = np.array(f[spikes_key][()])
@@ -87,14 +91,45 @@ def process_session(
 
     for protocol, idx in protocols.items():
 
-        num_frames = np.cumsum(meta_data["num_frames"])
+        fname_out = (
+            dir_analysis / f"{prefix}_{protocol}_{Path(fname).stem}{suffix}.{save_type}"
+        )
+
+        if num_frames[idx] == 0:
+            ## try to obtain from original data
+            print(f"Frame number missing ({num_frames}) - obtaining from original TIF data")
+            tif_files = sorted(dir_data.glob("*.tif"))
+
+            path_tif_data = tif_files[idx]
+            print("TIF path on HPC:", path_tif_data)
+
+            import tifffile
+
+            with tifffile.TiffFile(path_tif_data) as tif:
+                s = tif.series[0]
+                
+                print("shape:", s.shape)
+                num_frames[idx] = s.shape[0]
+            print("Updated num_frames:", num_frames)
+
+
+        if Path(fname_out).exists() and not force:
+            print(f"Output file for protocol '{protocol}' already exists: {fname_out}")
+            continue
+
         start_idx = num_frames[idx - 1] if idx > 0 else 0
         end_idx = num_frames[idx]
 
         stimuli = meta_data["Stimulus"][idx]
         S_protocol = S[:, start_idx:end_idx]
 
-        path_stimulus = dir_data.glob(f"*_{protocol}_*").__next__()
+        try:
+            path_stimulus = dir_data.glob(f"*_{protocol}_*").__next__()
+        except StopIteration:
+            print(f"Stimulus file for protocol '{protocol}' not found in {dir_data}")
+            continue
+            # raise FileNotFoundError(f"Stimulus file for protocol '{protocol}' not found in {dir_data}")
+        # path_stimulus = dir_data.glob(f"*_{protocol}_*").__next__()
         ld = loadmat(path_stimulus, simplify_cells=True)
         stimulus_data = ld["runInfo"]
 
@@ -169,9 +204,6 @@ def process_session(
                             "weights": entry[model].importance_weights(),
                         }
 
-        fname_out = (
-            dir_analysis / f"{prefix}_{protocol}_{Path(fname).stem}{suffix}.{save_type}"
-        )
         with h5py.File(fname_out, "w") as f:
             for n, entry in enumerate(results):
                 grp_neuron = f.create_group(f"neuron_{n}")
